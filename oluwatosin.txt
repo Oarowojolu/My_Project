@@ -1,0 +1,137 @@
+use ddmban_sql_analysis;
+USE ddmban_sql_analysis;
+
+SELECT *
+FROM ddmban_data;
+
+-- Organic Matcha Power as the only organic product with dietary values
+SELECT *
+FROM ddmban_data
+WHERE ID = '213';
+
+-- organic product with null dietary values
+SELECT *
+FROM ddmban_data
+WHERE ID = '166';
+
+-- Dietary product computaion to ascertain product with all dietary values
+SELECT 
+    ID, product, category, subcategory, vegan, glutenfree,ketofriendly,vegetarian,organic,dairyfree,sugarconscious,paleofriendly,wholefoodsdiet,lowsodium,kosher,lowfat,engine2, PRICE
+   from  ddmban_data
+   WHERE vegan = '1'
+    AND glutenfree = '1'
+    AND ketofriendly = '1'
+    AND vegetarian = '1'
+    AND organic = '1'
+    AND dairyfree = '1'
+    AND sugarconscious = '1'
+    AND paleofriendly = '1'
+    AND wholefoodsdiet = '1'
+    AND lowsodium = '1'
+    AND kosher = '1'
+    AND lowfat = '1'
+    AND engine2 = '1';
+    
+    -- None dietary product computaion to ascertain null dietary value
+    SELECT category, count(product), avg(servingsize) as avg_serving_size, avg(price) as avg_price
+    FROM ddmban_data
+    WHERE vegan = '0'
+    AND glutenfree = '0'
+    AND ketofriendly = '0'
+    AND vegetarian = '0'
+    AND organic = '0'
+    AND dairyfree = '0'
+    AND sugarconscious = '0'
+    AND paleofriendly = '0'
+    AND wholefoodsdiet = '0'
+    AND lowsodium = '0'
+    AND kosher = '0'
+    AND lowfat = '0'
+    AND engine2 = '0'
+    GROUP BY category
+    ORDER BY avg_price DESC
+    ;
+    
+    -- Product with the highest selling price
+    SELECT max(price) as highest_price, product, category, subcategory
+    FROM ddmban_data
+    WHERE vegan = '1'
+    GROUP BY product, category, subcategory
+    ORDER BY highest_price DESC;
+    
+	SELECT ID, product, category, subcategory, max(price) as highest_price
+    FROM ddmban_data
+    WHERE ketofriendly = '1'
+    GROUP BY ID, product, category, subcategory
+    ORDER BY highest_price DESC;
+    
+SELECT ID, product, category, subcategory, price
+    FROM ddmban_data
+    WHERE vegan = '1'
+    ORDER BY price DESC;
+
+select * from ddmban_data;
+-- Selecting correlation values between diet columns and price
+Select category, subcategory, 
+-- correlation between Organic  and Prices
+Round((Count(*)*Sum(organic*price)-Sum(organic)*Sum(price))/
+         (sqrt(Count(*)*Sum(organic*organic)-Sum(organic)*Sum(organic))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS organic_Corr,
+          
+          -- correlation between Low Sodium and Prices 
+          Round((Count(*)*Sum(lowsodium*price)-Sum(lowsodium)*Sum(price))/
+         (sqrt(Count(*)*Sum(lowsodium*lowsodium)-Sum(lowsodium)*Sum(lowsodium))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS lowsodium_Corr,
+          
+          -- correlation between vegan and Prices
+           Round((Count(*)*Sum(vegan*price)-Sum(vegan)*Sum(price))/
+         (sqrt(Count(*)*Sum(vegan*vegan)-Sum(vegan)*Sum(vegan))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS vegan_Corr,
+        
+        -- correlation between low fat and Prices
+          Round((Count(*)*Sum(lowfat*price)-Sum(lowfat)*Sum(price))/
+         (sqrt(Count(*)*Sum(lowfat*lowfat)-Sum(lowfat)*Sum(lowfat))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS lowfat_Corr,
+          
+          -- correlation between Organic ketofriendly and Prices 
+            Round((Count(*)*Sum(ketofriendly*price)-Sum(ketofriendly)*Sum(price))/
+         (sqrt(Count(*)*Sum(ketofriendly*ketofriendly)-Sum(ketofriendly)*Sum(lowfat))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS ketofriendly_Corr,
+        
+        -- correlation between kosher and Prices 
+        Round((Count(*)*Sum(kosher*price)-Sum(kosher)*Sum(price))/
+         (sqrt(Count(*)*Sum(kosher*kosher)-Sum(kosher)*Sum(kosher))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS kosher_Corr,  
+          
+          -- correlation between Paleo Friendly and Prices 
+             Round((Count(*)*Sum(paleofriendly*price)-Sum(paleofriendly)*Sum(price))/
+         (sqrt(Count(*)*Sum(paleofriendly*paleofriendly)-Sum(paleofriendly)*Sum(paleofriendly))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS paleofriendly_Corr,
+          
+          -- correlation between Engine2 and Prices 
+            Round((Count(*)*Sum(engine2*price)-Sum(engine2)*Sum(price))/
+         (sqrt(Count(*)*Sum(engine2*engine2)-Sum(engine2)*Sum(engine2))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS engine2_Corr,
+          
+          -- correlation between calories per serving and Prices
+                      Round((Count(*)*Sum(caloriesperserving*price)-Sum(caloriesperserving)*Sum(price))/
+         (sqrt(Count(*)*Sum(caloriesperserving*caloriesperserving)-Sum(caloriesperserving)*Sum(caloriesperserving))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS caloriesperserving_Corr,
+          
+          -- correlation between diary free and Prices
+         Round((Count(*)*Sum(dairyfree*price)-Sum(dairyfree)*Sum(price))/
+         (sqrt(Count(*)*Sum(dairyfree*dairyfree)-Sum(dairyfree)*Sum(dairyfree))*
+          sqrt(Count(*)*Sum(price*price)-Sum(price)*Sum(price))),2) AS dairyfree_Corr,
+         -- case to show if number of points is actually suitable for correlation purpose 
+         case
+          when count(subcategory) <= 2 then 'Few data points for correlation'
+          Else 'Enough Data for correlation'
+          End as Data_Number_points
+          
+          from ddmban_data
+           where price != 0
+           and category != 'NULL'
+            and (select count(subcategory) from ddmban_data) > 1
+           group by category,subcategory               
+          ;
+        

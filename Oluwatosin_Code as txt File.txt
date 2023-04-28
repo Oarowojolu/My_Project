@@ -1,0 +1,111 @@
+# Defining the variables
+bag = []
+Time = 0 
+stage = 1
+points = 0
+wand = ""
+
+import time
+# start the game timer
+start_time = time.time()
+
+
+#%%
+
+# Defining the list
+items = ["wand", "book", "potion", "ingredient"]
+
+#%%
+
+# Defining of functions
+def win():
+    print("Congratulations! You have successfully completed the Sorcerer's Stone quest.")
+    print("You have completed the game.")
+
+def fail():
+    print("You have been defeated. Retry the game.")
+
+#%%
+
+# Starting the game
+print("Welcome to Harry Potter and the Philosopher's Stone Adventure Game!")
+print("You are Harry Potter, on a quest to find the Sorcerer's Stone.")
+
+#%%
+
+# The first stage: Collecting the required items
+while stage == 1:
+    print("You are currently in Diagon Alley.")
+    print("You have to collect items to complete the quest.")
+    for item in items:
+        print("Do you want to collect " + item + "? (yes/no)")
+        choice = input()
+        if choice == "yes":
+            if item == "wand":
+                wand = input("Which wand do you want to buy? (elder, holly, or phoenix feather)")
+                bag.append(wand)
+                points += 10
+                print("You have collected " + wand + " wand.")
+            else:
+                bag.append(item)
+                points += 5
+                print("You have collected " + item + ".")
+        elif choice == "no":
+            print("You have decided not to collect " + item + ".")
+        else:
+            print("Invalid choice. Please enter 'yes' or 'no'.")
+    stage = 2
+
+#%%
+
+# The second stage: Entering Hogwarts
+while stage == 2:
+    print("You are currently at the Hogwarts Express.")
+    print("You have to enter Hogwarts.")
+    if "book" in bag:
+        print("You have a book of spells, you can enter Hogwarts.")
+        stage = 3
+    else:
+        print("You don't have a book of spells, you can't enter Hogwarts.")
+        fail()
+        break
+
+#%%
+
+# The third stage: Finding the Sorcerer's Stone
+while stage == 3:
+    print("You are currently in Hogwarts.")
+    print("You have to find the Sorcerer's Stone.")
+    if points >= 20:
+        print("You have collected enough items, you can find the Sorcerer's Stone.")
+        stage = 4
+    else:
+        print("You don't have enough items, you can't find the Sorcerer's Stone.")
+        fail()
+        break
+        
+#%%
+
+# The fourth Stage: Defeating the guardian
+while stage == 4:
+    print("You are currently in the Sorcerer's Stone chamber.")
+    print("You have to defeat the guardian to get the Sorcerer's Stone.")
+    if wand == "phoenix feather":
+        print("You have a Phoenix feather wand, you can defeat the guardian.")
+        win()
+        break
+    else:
+        print("You don't have a Phoenix feather wand, you can't defeat the guardian.")
+        fail()
+        break
+    
+#%%
+
+# checking the current time
+current_time = time.time()
+
+# calculating the elapsed time
+elapsed_time = current_time - start_time
+
+# displaying the elapsed time
+print("Time elapsed:", elapsed_time)
